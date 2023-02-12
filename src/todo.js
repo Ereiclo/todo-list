@@ -13,7 +13,7 @@ class Todo {
 
     static findTodo(task,id){
         let found = null;
-        let todoTasks = localStorage.getItem(task);
+        let todoTasks = JSON.parse(localStorage.getItem(task));
 
         if(todoTasks){
 
@@ -29,6 +29,33 @@ class Todo {
         }
 
         return found;
+    }
+
+    static findTask(task){
+        if (localStorage.getItem("tasks") === null) {
+            localStorage.setItem("tasks",JSON.stringify({list:[],nextId:0}));
+        }
+
+
+        let found = null;
+        let tasksList = JSON.parse(localStorage.getItem("tasks")).list;
+
+        if(tasksList){
+
+
+            for (let i = 0; i < tasksList.length; ++i) {
+                let actualTask = tasksList[i];
+                if (actualTask === task) {
+                    found = actualTask;
+                    break;
+                }
+            }
+
+        }
+
+        return found;
+
+
     }
 
     static removeTodo(todo) {
@@ -69,10 +96,40 @@ class Todo {
         todoTasks.push(todo);
     }
 
-    static loadTodos() {
+
+    static loadTasks(){
         if (localStorage.getItem("tasks") === null) {
-            localStorage.setItem("tasks", {list:[],nextId:0});
+            localStorage.setItem("tasks",JSON.stringify({list:[],nextId:0}));
         }
+
+
+        return JSON.parse(localStorage.getItem("tasks")).list;
+
+
+
+
+    }
+
+    static loadTodos() {
+
+    }
+
+    static saveTask(task){
+        if (localStorage.getItem("tasks") === null) {
+            localStorage.setItem("tasks",JSON.stringify({list:[],nextId:0}));
+        }
+
+
+        if(!localStorage.getItem(task)){
+            let tasks = JSON.parse(localStorage.getItem("tasks"))
+
+            tasks.list.push(task);
+            localStorage.setItem(task,JSON.stringify([]));
+            localStorage.setItem("tasks",JSON.stringify(tasks));
+        }
+
+
+
     }
 }
 
