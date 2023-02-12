@@ -1,0 +1,87 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@500&family=Roboto:wght@400;500&family=Sarabun&display=swap');
+
+
+:root{
+    font-size:24px;
+    font-family: 'Roboto',sans-serif;
+    /* box-sizing: border-box; */
+
+}
+
+html,body{
+    height: 100vh;
+    margin: 0;
+
+}
+
+
+.content{
+    display: grid;
+    grid-template-columns: 400px 1fr;
+    /* grid-template-rows: 1fr; */
+    height: 100%;
+
+
+}
+
+.tasks{
+    padding: 12px;
+    /* margin-right: 10px; */
+    background-color: #cbd5e1;
+    display: grid;
+    align-content: start;
+    gap:22px;
+}
+
+
+.tasks-section{
+}
+
+.tasks-section > ul {
+    display: grid;
+    justify-items: center;
+    padding: 0px;
+    margin: 0px;
+    gap: 6px;
+    list-style-type: none;
+    /* justify-self: left; */
+}
+
+.new-task-input{
+    justify-self: center;
+    width: 240px;
+    /* width: fit-content; */
+    background-color: inherit;
+    border-style: none;
+    /* box-sizing: border-box; */
+    /* width: fit-content; */
+    padding: 4px;
+    border-radius: 4px;
+    font-size:1rem;
+}
+
+.task{
+    /* list-style-type: disc; */
+    /* content: "."; */
+    /* -self: left; */
+    justify-self: left;
+    margin-left:20px;
+
+}
+
+.new-task-input:focus{
+    outline: none;
+    /* white-space: normal; */
+    background-color: #e2e8f0;
+    
+}
+
+.title{
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.tasks > button {
+    justify-self:center;
+    font-size:1rem;
+}
