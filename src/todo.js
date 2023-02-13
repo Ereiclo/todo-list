@@ -1,48 +1,87 @@
 class Todo {
-    constructor(task, title) {
-        this.id = null;
+    constructor(task, title, isNew = true) {
         this.task = task;
         this.title = title;
         this.checked = false;
         this.date = null;
+
+        if (isNew) {
+            if (localStorage.getItem("tasks") === null) {
+                localStorage.setItem(
+                    "tasks",
+                    JSON.stringify({ list: [], nextId: 0 })
+                );
+            }
+
+            let tasks = JSON.parse(localStorage.getItem("tasks"));
+
+            this.id = tasks.nextId++;
+            // console.log(tasks.nextId);
+
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+        } else this.id = null;
     }
 
     toggleTodoCheck() {
         this.checked = this.checked ? false : true;
     }
 
-    static findTodo(task,id){
-        let found = null;
-        let todoTasks = JSON.parse(localStorage.getItem(task));
+    static _createTodoFromLocalStorage(todoFromLocalStorage) {
+        let newTodo = new Todo(
+            todoFromLocalStorage.task,
+            todoFromLocalStorage.title,
+            false
+        );
 
-        if(todoTasks){
+        newTodo.date = todoFromLocalStorage.date;
+        newTodo.checked = todoFromLocalStorage.checked;
+        newTodo.id = todoFromLocalStorage.id;
 
-
-            for (let i = 0; i < todoTasks.length; ++i) {
-                let actualTodo = todoTasks[i];
-                if (actualTodo.id == id) {
-                    found = actualTodo;
-                    break;
-                }
-            }
-
-        }
-
-        return found;
+        return newTodo;
     }
 
-    static findTask(task){
-        if (localStorage.getItem("tasks") === null) {
-            localStorage.setItem("tasks",JSON.stringify({list:[],nextId:0}));
-        }
+    static loadTodos(task) {
+        let storageTodos = JSON.parse(localStorage.getItem(task));
+        // console.log(storageTodos);
 
+        let localTodos = {}
+
+        for(let actualTodoId in storageTodos){
+            // console.log(storageTodo)
+            let localTodo = this._createTodoFromLocalStorage(storageTodos[actualTodoId]);
+            // console.log(localTodo);
+
+            localTodos[localTodo.id] = localTodo;
+
+
+        }
+        return localTodos;
+    }
+
+
+    static saveTodo(task,todo){
+        let todoListFromTask = JSON.parse(localStorage.getItem(task));
+        todoListFromTask[todo.id] = todo;
+
+        localStorage.setItem(task,JSON.stringify(todoListFromTask))
+    }
+
+    static saveTodos(task, todos) {
+        localStorage.setItem(task, JSON.stringify(todos));
+    }
+
+    static findTask(task) {
+        if (localStorage.getItem("tasks") === null) {
+            localStorage.setItem(
+                "tasks",
+                JSON.stringify({ list: [], nextId: 0 })
+            );
+        }
 
         let found = null;
         let tasksList = JSON.parse(localStorage.getItem("tasks")).list;
 
-        if(tasksList){
-
-
+        if (tasksList) {
             for (let i = 0; i < tasksList.length; ++i) {
                 let actualTask = tasksList[i];
                 if (actualTask === task) {
@@ -50,86 +89,37 @@ class Todo {
                     break;
                 }
             }
-
         }
 
         return found;
-
-
     }
 
-    static removeTodo(todo) {
-        if (localStorage.getItem(todo.task)) {
-            let found = null;
-            let todoTasks = localStorage.getItem(todo.task);
-
-            for (let i = 0; i < todoTasks.length; ++i) {
-                let actualTodo = todoTasks[i];
-                if (actualTodo.id === todo.id) {
-                    found = i;
-                    break;
-                }
-            }
-
-            if (found) {
-                todoTasks.splice(i, 1);
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    static saveTodo(todo) {
-        if (localStorage.getItem(todo.task) === null) {
-            localStorage.getItem("tasks").push(todo.task);
-            localStorage.setItem(todo.task, []);
-        }
-
-        if(removeTodo(todo) === false){
-            let id = localStorage.getItem("tasks").id;
-            todo.id = id;
-            ++id;
-        }
-
-
-        todoTasks.push(todo);
-    }
-
-
-    static loadTasks(){
+    static loadTasks() {
         if (localStorage.getItem("tasks") === null) {
-            localStorage.setItem("tasks",JSON.stringify({list:[],nextId:0}));
+            localStorage.setItem(
+                "tasks",
+                JSON.stringify({ list: [], nextId: 0 })
+            );
         }
-
 
         return JSON.parse(localStorage.getItem("tasks")).list;
-
-
-
-
     }
 
-    static loadTodos() {
-
-    }
-
-    static saveTask(task){
+    static saveTask(task) {
         if (localStorage.getItem("tasks") === null) {
-            localStorage.setItem("tasks",JSON.stringify({list:[],nextId:0}));
+            localStorage.setItem(
+                "tasks",
+                JSON.stringify({ list: [], nextId: 0 })
+            );
         }
 
-
-        if(!localStorage.getItem(task)){
-            let tasks = JSON.parse(localStorage.getItem("tasks"))
+        if (!localStorage.getItem(task)) {
+            let tasks = JSON.parse(localStorage.getItem("tasks"));
 
             tasks.list.push(task);
-            localStorage.setItem(task,JSON.stringify([]));
-            localStorage.setItem("tasks",JSON.stringify(tasks));
+            localStorage.setItem(task, JSON.stringify({}));
+            localStorage.setItem("tasks", JSON.stringify(tasks));
         }
-
-
-
     }
 }
 

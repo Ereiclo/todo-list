@@ -33,17 +33,40 @@ html,body{
     gap:22px;
 }
 
+.todo-section{
+    padding: 12px;
+    /* margin-right: 10px; */
+    /* background-color: #cbd5e1; */
+    display: grid;
+    align-content: start;
+    gap:14px;
+}
+
+
+
+
+.tasks-section > ul,
+.todo-section > ul{
+    padding: 0px;
+    margin: 0px;
+}
+
+
+.todo-section > ul{
+    display: grid;
+    list-style-type: none;
+    gap: 18px;
+}
 
 .tasks-section > ul {
     display: grid;
     justify-items: center;
-    padding: 0px;
-    margin: 0px;
-    gap: 6px;
+    gap: 14px;
     list-style-type: none;
     /* justify-self: left; */
 }
 
+.new-todo-input,
 .new-task-input{
     justify-self: center;
     width: 240px;
@@ -53,9 +76,11 @@ html,body{
     /* box-sizing: border-box; */
     /* width: fit-content; */
     padding: 4px;
-    border-radius: 4px;
+    border-radius: 8px;
     font-size:1rem;
 }
+
+
 
 .task{
     /* list-style-type: disc; */
@@ -67,6 +92,7 @@ html,body{
 
 }
 
+.new-todo-input:focus,
 .new-task-input:focus{
     outline: none;
     /* white-space: normal; */
@@ -74,17 +100,25 @@ html,body{
     
 }
 
+.new-todo-input:focus{
+    background-color: #e5e7eb;
+}
+
 .title{
     font-size: 1.2rem;
     font-weight: 600;
 }
 
+.todo-section > button,
 .tasks > button {
     justify-self:center;
     font-size:1rem;
 }
 
 
+
+
+.todo-section > button:hover,
 .tasks > button:hover {
     cursor:pointer;
 }
@@ -102,4 +136,52 @@ html,body{
     font-style: italic;
     font-size: 1.2rem;
     cursor:pointer;
+}
+
+
+
+.todo-title,
+.new-todo-input{
+    font-size:1rem;
+
+    width: 80%;
+}
+
+
+
+.todo-row{
+    display: grid;
+    grid-template-columns: 40px max(300px,60%) minmax(200px,1fr) ;
+    /* justify-content: space-around; */
+    place-items: center;
+}
+
+.todo-date-input{
+    justify-self: right;
+    font-family: 'Roboto',sans-serif;
+    font-size: 1rem;
+    padding:4px;
+    border-radius: 10px;
+    border:2px solid;
+    width: 200px;
+    box-sizing: border-box;
+
+}
+.todo-date:focus{
+    outline: none;
+    /* :width: ; */
+    background-color: #e2e8f0;
+}
+
+.todo-finished{
+    /* background-color: black; */
+    width: 20px;
+    height: 20px;
+    margin: 0px;
+    accent-color: black;
+    justify-self: center;
+}
+
+.todo-section{
+    overflow: auto;
 }

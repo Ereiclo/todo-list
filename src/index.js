@@ -7,13 +7,37 @@ import element from "./createElements.js";
 
 (function () {
     let taskSectionUl = document.querySelector(".tasks-section > ul");
+    let todoSectionUl = document.querySelector(".todo-section > ul");
     let createTaskButton = document.querySelector(".tasks > button");
+    let createTodoButton = document.querySelector(".todo-section > button");
     let currentTask = null;
+    let currentTodos = null;
 
-    function appendTaskSectionUl(elmt) {
+    function keydownBlur(e) {
+        // console.log(e)
+        if (e.key === "Enter" || e.key === "Escape") {
+            e.currentTarget.blur();
+        }
+    }
+
+    function createLiWithElmt(elmt) {
         let newLi = element.newLi();
         // console.log(element)
         if (elmt) newLi.appendChild(elmt);
+
+        return newLi;
+    }
+
+    function appendTodoSectionUl(elmt) {
+        let newLi = createLiWithElmt(elmt);
+
+        todoSectionUl.appendChild(newLi);
+
+        return newLi;
+    }
+
+    function appendTaskSectionUl(elmt) {
+        let newLi = createLiWithElmt(elmt);
 
         taskSectionUl.appendChild(newLi);
 
@@ -24,6 +48,7 @@ import element from "./createElements.js";
         let newTask = appendTaskSectionUl();
         newTask.classList.add("task");
         newTask.innerText = task;
+        newTask.setAttribute("data-task", task);
 
         return newTask;
     }
@@ -39,9 +64,15 @@ import element from "./createElements.js";
                 return;
             }
 
-            createTask(actualInput.value);
-            // newTask.classList.add('.task');
-            // newTask.innerText = actualInput.value;
+            let newTask = createTask(actualInput.value);
+
+            // if (currentTask) {
+                // currentTask.classList.remove("focused-task");
+            // }
+            // newTask.classList.add("focused-task");
+            newTask.addEventListener('click',changeCurrentTask)
+            currentTask = newTask;
+
             Todo.saveTask(actualInput.value);
         }
     }
@@ -56,50 +87,130 @@ import element from "./createElements.js";
         newInput.addEventListener("blur", (e) =>
             newTaskInputLeave(e.currentTarget)
         );
-        newInput.addEventListener("keydown", (e) => {
-            // console.log(e)
-            if (e.key === "Enter" || e.key === "Escape") {
-                e.currentTarget.blur();
-            }
-        });
+        newInput.addEventListener("keydown", keydownBlur);
 
         appendTaskSectionUl(newInput);
         newInput.focus();
         // currentFocusedInput = newInput;
     }
 
-    function changeCurrentTask(e){
-
-        currentTask.classList.remove('focused-task');
-        e.currentTarget.classList.add('focused-task');
+    function changeCurrentTask(e) {
+        currentTask.classList.remove("focused-task");
+        e.currentTarget.classList.add("focused-task");
 
         currentTask = e.currentTarget;
-        console.log(currentTask);
+        loadTodosOfCurrentTask();
+        // console.log(currentTask);
+    }
+
+    function loadTodosOfCurrentTask(){
+        if(!currentTask) return;
+        let dataTask = currentTask.getAttribute('data-task');
+
+        currentTodos = Todo.loadTodos(dataTask);
+
+        removeElements(todoSectionUl);
+        // console.log(dataTask);
+
+        for(let actualTodoId in currentTodos){
+            // console.log(currentTodos[actualTodoId]);
+            createTodoDOM(currentTodos[actualTodoId]);
+        }
 
     }
 
     function loadTasks() {
         let initialTaskList = Todo.loadTasks();
 
-
-        for(let i = 0; i < initialTaskList.length;++i){
-            
+        for (let i = 0; i < initialTaskList.length; ++i) {
             let task = initialTaskList[i];
             let taskElem = createTask(task);
-            taskElem.addEventListener('click',changeCurrentTask);
+            taskElem.addEventListener("click", changeCurrentTask);
 
-            if(i === 0){
-                taskElem.classList.add('focused-task');
+            if (i === 0) {
+                taskElem.classList.add("focused-task");
                 currentTask = taskElem;
-
-                
-
+                loadTodosOfCurrentTask();
             }
         }
     }
 
-    
+
+    function removeElements(elm){
+
+        while(elm.firstChild){
+            elm.firstChild.remove();
+        }
+
+    }
+
+    function createTodoDOM(todo) {
+        if (currentTask === null) return;
+
+        let newRow = element.newDiv();
+        let newCheckbox = element.newInputOfType("checkbox");
+        let newDate =
+            todo && todo.date
+                ? element.newDiv()
+                : element.newInputOfType("date");
+
+        let newTitle = todo ? element.newDiv() : element.newInputOfType("text");
+
+        newRow.classList.add("todo-row");
+        newCheckbox.classList.add("todo-finished");
+
+        if (todo && todo.date) {
+            newDate.classList.add("todo-date");
+            newDate.innerText = todo.date;
+        } else newDate.classList.add("todo-date-input");
+
+        newRow.appendChild(newCheckbox);
+        newRow.appendChild(newTitle);
+        newRow.appendChild(newDate);
+
+        appendTodoSectionUl(newRow);
+
+        if (!todo) {
+            newTitle.classList.add("new-todo-input");
+            newTitle.addEventListener("blur", (e) => {
+                let title = e.currentTarget.value;
+                let task = currentTask.getAttribute("data-task");
+
+                if (title !== "") {
+                    let actualDiv = e.currentTarget.parentNode;
+                    let newTodo = new Todo(task, title);
+                    let newDiv = element.newDiv();
+
+                    // e.currentTarget.remove();
+                    // console.log(newTodo);
+
+                    newDiv.classList.add("todo-title");
+                    newDiv.innerText = newTodo.title;
+                    newRow.setAttribute("data-id", newTodo.id);
+
+                    actualDiv.replaceChild(newDiv, e.currentTarget);
+
+                    currentTodos[newTodo.id] = newTodo;
+
+                    Todo.saveTodo(task, newTodo);
+
+                    // console.log(currentTodos);
+                } else {
+                    newRow.parentNode.remove();
+                }
+            });
+            newTitle.addEventListener("keydown", keydownBlur);
+            newTitle.focus();
+        } else {
+            newTitle.classList.add("todo-title");
+            newTitle.innerText = todo.title;
+            newRow.setAttribute("data-id", todo.id);
+            newCheckbox.checked = todo.checked;
+        }
+    }
 
     createTaskButton.addEventListener("focus", addNewTask);
+    createTodoButton.addEventListener("focus", (e) => createTodoDOM());
+
     loadTasks();
 })();
