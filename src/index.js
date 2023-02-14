@@ -15,6 +15,18 @@ import element from "./createElements.js";
     let currentTasks = [];
     let currentTaskIndex = null;
 
+    function updateTasksAttr(){
+        // console.log('ee')
+        for(let i = 0; i < currentTasks.length;++i){
+            console.log(i);
+            let actualTask = currentTasks[i];
+            let buttonElm = actualTask.nextElementSibling;
+
+            actualTask.setAttribute('data-task-index',i);
+            buttonElm.setAttribute('data-task-index',i);
+        }
+    }
+
     function keydownBlur(e) {
         // console.log(e)
         if (e.key === "Enter" || e.key === "Escape") {
@@ -66,14 +78,14 @@ import element from "./createElements.js";
             if (currentTask === currentTasks[eventTaskIndex]) {
                 // console.log(currentTasks)
                 let nextSibling = (+eventTaskIndex + 1) % currentTasks.length;
-                // console.log(nextSibling)
+                console.log({nextSibling, eventTaskIndex:+eventTaskIndex})
 
-                if (nextSibling === eventTaskIndex)
+                if (nextSibling === +eventTaskIndex)
                     nextSibling = null;
 
-                e.currentTarget.classList.remove("focused-task");
+                currentTasks[eventTaskIndex].classList.remove("focused-task");
 
-                if (nextSibling) {
+                if (nextSibling !== null) {
                     currentTaskIndex = nextSibling;
                     currentTask = currentTasks[nextSibling];
                     currentTask.classList.add("focused-task");
@@ -92,6 +104,10 @@ import element from "./createElements.js";
             e.currentTarget.parentNode.remove();
 
             currentTasks.splice(eventTaskIndex,1);
+
+            // console.log('ee');
+            updateTasksAttr();
+
             console.log(currentTasks);
             Todo.removeTask(task);
         });
