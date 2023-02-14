@@ -34,7 +34,7 @@ html,body{
 }
 
 .todo-section{
-    padding: 12px;
+    /* padding: 12px; */
     /* margin-right: 10px; */
     /* background-color: #cbd5e1; */
     display: grid;
@@ -52,18 +52,26 @@ html,body{
 }
 
 
-.todo-section > ul{
+.todo-list{
+    
+    /* width: max(100%,fit-content); */
     display: grid;
     list-style-type: none;
     gap: 18px;
+    /* grid-template-columns: 1fr; */
+    /* box-sizing: border-box; */
 }
 
 .tasks-section > ul {
     display: grid;
-    justify-items: center;
+    justify-items: start;
     gap: 14px;
     list-style-type: none;
     /* justify-self: left; */
+}
+
+.li-input{
+    justify-self: center;
 }
 
 .new-todo-input,
@@ -89,6 +97,7 @@ html,body{
     justify-self: left;
     margin-left:20px;
     user-select: none;
+    margin-right: auto;
 
 }
 
@@ -151,7 +160,7 @@ html,body{
 
 .todo-row{
     display: grid;
-    grid-template-columns: 40px max(300px,60%) minmax(200px,1fr) ;
+    grid-template-columns: 40px max(300px,60%) minmax(200px,1fr) 60px;
     /* justify-content: space-around; */
     place-items: center;
 }
@@ -189,4 +198,39 @@ html,body{
 
 .todo-section{
     overflow: auto;
+}
+
+.delete-btn{
+    padding: 0px;
+    display: grid;
+    justify-self: center;
+    box-sizing: border-box;
+    place-items: center;
+    /* margin-right: 16px; */
+
+}
+
+
+.todo-section > ul{
+    /* margin-top: 16px; */
+}
+
+.todo-finished{
+    /* margin-left: 16px; */
+}
+
+.todo-row{
+    box-sizing: border-box;
+    margin: 0px 10px;
+}
+
+.todo-list:first-child > .todo-row{
+    margin-top:16px;
+}
+
+.task-li{
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
 }

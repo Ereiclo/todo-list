@@ -59,6 +59,14 @@ class Todo {
     }
 
 
+    static removeTodo(task,todoId){
+        let todoListFromTask = JSON.parse(localStorage.getItem(task));
+        delete todoListFromTask[todoId];
+
+        localStorage.setItem(task,JSON.stringify(todoListFromTask))
+    }
+
+
     static saveTodo(task,todo){
         let todoListFromTask = JSON.parse(localStorage.getItem(task));
         todoListFromTask[todo.id] = todo;
@@ -120,6 +128,31 @@ class Todo {
             localStorage.setItem(task, JSON.stringify({}));
             localStorage.setItem("tasks", JSON.stringify(tasks));
         }
+    }
+
+    static removeTask(task){
+
+        if (localStorage.getItem(task)) {
+            let tasks = JSON.parse(localStorage.getItem("tasks"));
+            let taskIndex = null;
+
+            // console.log(tasks);
+
+            for(let i = 0; i < tasks.list.length;++i){
+                let actualTask = tasks.list[i];
+                if(actualTask === task) {
+                    taskIndex = i;
+                    break;
+                }
+            }
+
+            tasks.list.splice(taskIndex,1);
+
+            localStorage.removeItem(task);
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+        }
+ 
+
     }
 }
 

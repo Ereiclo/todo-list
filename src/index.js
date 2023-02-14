@@ -7,11 +7,13 @@ import element from "./createElements.js";
 
 (function () {
     let taskSectionUl = document.querySelector(".tasks-section > ul");
-    let todoSectionUl = document.querySelector(".todo-section > ul");
+    let todoSectionUl = document.querySelector(".todo-list");
     let createTaskButton = document.querySelector(".tasks > button");
     let createTodoButton = document.querySelector(".todo-section > button");
     let currentTask = null;
     let currentTodos = null;
+    let currentTasks = [];
+    let currentTaskIndex = null;
 
     function keydownBlur(e) {
         // console.log(e)
@@ -29,11 +31,11 @@ import element from "./createElements.js";
     }
 
     function appendTodoSectionUl(elmt) {
-        let newLi = createLiWithElmt(elmt);
+        // let newLi = createLiWithElmt(elmt);
 
-        todoSectionUl.appendChild(newLi);
+        todoSectionUl.appendChild(elmt);
 
-        return newLi;
+        return elmt;
     }
 
     function appendTaskSectionUl(elmt) {
@@ -45,10 +47,65 @@ import element from "./createElements.js";
     }
 
     function createTask(task) {
-        let newTask = appendTaskSectionUl();
+        let newTask = element.newDiv();
         newTask.classList.add("task");
         newTask.innerText = task;
         newTask.setAttribute("data-task", task);
+        newTask.setAttribute("data-task-index", currentTasks.length);
+
+        let newTaskLi = appendTaskSectionUl(newTask);
+        let deleteBtn = element.newButton();
+        let newImg = element.newImg("../img/trash.svg");
+
+        deleteBtn.classList.add("delete-btn");
+        deleteBtn.appendChild(newImg);
+        deleteBtn.setAttribute("data-task-index", currentTasks.length);
+        deleteBtn.addEventListener("click", (e) => {
+            let eventTaskIndex = e.currentTarget.getAttribute('data-task-index');
+            // console.log({currentTask,eventTaskIndex});
+            if (currentTask === currentTasks[eventTaskIndex]) {
+                // console.log(currentTasks)
+                let nextSibling = (+eventTaskIndex + 1) % currentTasks.length;
+                // console.log(nextSibling)
+
+                if (nextSibling === eventTaskIndex)
+                    nextSibling = null;
+
+                e.currentTarget.classList.remove("focused-task");
+
+                if (nextSibling) {
+                    currentTaskIndex = nextSibling;
+                    currentTask = currentTasks[nextSibling];
+                    currentTask.classList.add("focused-task");
+                } else {
+                    currentTask = null;
+                    currentTaskIndex = null;
+                }
+
+                loadTodosOfCurrentTask();
+            }
+
+            let task = currentTasks[eventTaskIndex].getAttribute('data-task');
+            // console.log(task);
+            // return;
+
+            e.currentTarget.parentNode.remove();
+
+            currentTasks.splice(eventTaskIndex,1);
+            console.log(currentTasks);
+            Todo.removeTask(task);
+        });
+
+        newTaskLi.classList.add("task-li");
+        newTaskLi.appendChild(deleteBtn);
+        currentTasks.push(newTask);
+
+        if(currentTask === null){
+            currentTask = newTask;
+            currentTask.classList.add('focused-task');
+            currentTaskIndex = 0;
+            loadTodosOfCurrentTask();
+        }
 
         return newTask;
     }
@@ -67,11 +124,11 @@ import element from "./createElements.js";
             let newTask = createTask(actualInput.value);
 
             // if (currentTask) {
-                // currentTask.classList.remove("focused-task");
+            // currentTask.classList.remove("focused-task");
             // }
             // newTask.classList.add("focused-task");
-            newTask.addEventListener('click',changeCurrentTask)
-            currentTask = newTask;
+            newTask.addEventListener("click", changeCurrentTask);
+            // currentTask = newTask;
 
             Todo.saveTask(actualInput.value);
         }
@@ -89,34 +146,40 @@ import element from "./createElements.js";
         );
         newInput.addEventListener("keydown", keydownBlur);
 
-        appendTaskSectionUl(newInput);
+        let newLi = appendTaskSectionUl(newInput);
+        newLi.classList.add('li-input')
         newInput.focus();
         // currentFocusedInput = newInput;
     }
 
     function changeCurrentTask(e) {
+        console.log(currentTasks);
+        if(e.currentTarget === currentTask) return;
         currentTask.classList.remove("focused-task");
         e.currentTarget.classList.add("focused-task");
 
         currentTask = e.currentTarget;
+        currentTaskIndex = e.currentTarget.getAttribute('data-task-index');
         loadTodosOfCurrentTask();
-        // console.log(currentTask);
     }
 
-    function loadTodosOfCurrentTask(){
-        if(!currentTask) return;
-        let dataTask = currentTask.getAttribute('data-task');
-
-        currentTodos = Todo.loadTodos(dataTask);
+    function loadTodosOfCurrentTask() {
+        currentTodos = {};
 
         removeElements(todoSectionUl);
+
+        if (!currentTask) return;
+
+        let dataTask = currentTask.getAttribute("data-task");
+
+        Object.assign(currentTodos, Todo.loadTodos(dataTask));
+
         // console.log(dataTask);
 
-        for(let actualTodoId in currentTodos){
+        for (let actualTodoId in currentTodos) {
             // console.log(currentTodos[actualTodoId]);
             createTodoDOM(currentTodos[actualTodoId]);
         }
-
     }
 
     function loadTasks() {
@@ -126,22 +189,21 @@ import element from "./createElements.js";
             let task = initialTaskList[i];
             let taskElem = createTask(task);
             taskElem.addEventListener("click", changeCurrentTask);
+            // currentTasks.push(taskElem);
 
             if (i === 0) {
                 taskElem.classList.add("focused-task");
                 currentTask = taskElem;
+                currentTaskIndex = 0;
                 loadTodosOfCurrentTask();
             }
         }
     }
 
-
-    function removeElements(elm){
-
-        while(elm.firstChild){
+    function removeElements(elm) {
+        while (elm.firstChild) {
             elm.firstChild.remove();
         }
-
     }
 
     function createTodoDOM(todo) {
@@ -155,47 +217,62 @@ import element from "./createElements.js";
                 : element.newInputOfType("date");
 
         let newTitle = todo ? element.newDiv() : element.newInputOfType("text");
+        let deleteBtn = element.newButton();
+        let newImg = element.newImg("../img/trash.svg");
+        // deleteBtn.innerText = 'x';
+        deleteBtn.classList.add("delete-btn");
+        deleteBtn.type = "button";
+        deleteBtn.appendChild(newImg);
 
         newRow.classList.add("todo-row");
         newCheckbox.classList.add("todo-finished");
 
+        deleteBtn.addEventListener("click", (e) => {
+            let todoId = newRow.getAttribute("data-id");
+            let task = currentTask.getAttribute("data-task");
 
-        newCheckbox.addEventListener('input',(e) => {
-            console.log(e.currentTarget.checked);
-            let todoId = newRow.getAttribute('data-id');
-            let task = currentTask.getAttribute('data-task');
+            delete currentTodos[todoId];
+            newRow.remove();
+
+            Todo.removeTodo(task, todoId);
+        });
+
+        newCheckbox.addEventListener("input", (e) => {
+            // console.log(e.currentTarget.checked);
+            let todoId = newRow.getAttribute("data-id");
+            let task = currentTask.getAttribute("data-task");
 
             currentTodos[todoId].checked = e.currentTarget.checked;
 
-            Todo.saveTodo(task,currentTodos[todoId]);
-        })
+            Todo.saveTodo(task, currentTodos[todoId]);
+        });
 
         if (todo && todo.date) {
             newDate.classList.add("todo-date");
             newDate.innerText = todo.date;
         } else {
             newDate.classList.add("todo-date-input");
-            newDate.addEventListener('blur', (e) => {
+            newDate.addEventListener("blur", (e) => {
                 let date = e.currentTarget.value;
-                if(date != ''){
+                if (date != "") {
                     let newDiv = element.newDiv();
-                    let todoId = newRow.getAttribute('data-id');
-                    let task = currentTask.getAttribute('data-task');
-                    newDiv.classList.add('todo-date');
+                    let todoId = newRow.getAttribute("data-id");
+                    let task = currentTask.getAttribute("data-task");
+                    newDiv.classList.add("todo-date");
                     newDiv.innerText = date;
-                    newRow.replaceChild(newDiv,newDate);
+                    newRow.replaceChild(newDiv, newDate);
 
                     currentTodos[todoId].date = date;
 
-                    Todo.saveTodo(task,currentTodos[todoId]);
-
+                    Todo.saveTodo(task, currentTodos[todoId]);
                 }
-            })
-        } 
+            });
+        }
 
         newRow.appendChild(newCheckbox);
         newRow.appendChild(newTitle);
         newRow.appendChild(newDate);
+        newRow.appendChild(deleteBtn);
 
         appendTodoSectionUl(newRow);
 
@@ -225,7 +302,7 @@ import element from "./createElements.js";
 
                     // console.log(currentTodos);
                 } else {
-                    newRow.parentNode.remove();
+                    newRow.remove();
                 }
             });
             newTitle.addEventListener("keydown", keydownBlur);

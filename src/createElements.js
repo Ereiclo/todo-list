@@ -35,9 +35,17 @@ let element = (function(){
         document.querySelector(selector).remove();
     }
 
+    function newImg(imgSrc){
+        let newImg = document.createElement('img');
+        newImg.src = imgSrc;
+
+        return newImg;
+
+    }
 
 
-    return {newDiv,newButton,newLi,newUl,delElem,newInputOfType};
+
+    return {newDiv,newButton,newLi,newUl,delElem,newInputOfType,newImg};
 
 })()
 
