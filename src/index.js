@@ -159,10 +159,39 @@ import element from "./createElements.js";
         newRow.classList.add("todo-row");
         newCheckbox.classList.add("todo-finished");
 
+
+        newCheckbox.addEventListener('input',(e) => {
+            console.log(e.currentTarget.checked);
+            let todoId = newRow.getAttribute('data-id');
+            let task = currentTask.getAttribute('data-task');
+
+            currentTodos[todoId].checked = e.currentTarget.checked;
+
+            Todo.saveTodo(task,currentTodos[todoId]);
+        })
+
         if (todo && todo.date) {
             newDate.classList.add("todo-date");
             newDate.innerText = todo.date;
-        } else newDate.classList.add("todo-date-input");
+        } else {
+            newDate.classList.add("todo-date-input");
+            newDate.addEventListener('blur', (e) => {
+                let date = e.currentTarget.value;
+                if(date != ''){
+                    let newDiv = element.newDiv();
+                    let todoId = newRow.getAttribute('data-id');
+                    let task = currentTask.getAttribute('data-task');
+                    newDiv.classList.add('todo-date');
+                    newDiv.innerText = date;
+                    newRow.replaceChild(newDiv,newDate);
+
+                    currentTodos[todoId].date = date;
+
+                    Todo.saveTodo(task,currentTodos[todoId]);
+
+                }
+            })
+        } 
 
         newRow.appendChild(newCheckbox);
         newRow.appendChild(newTitle);

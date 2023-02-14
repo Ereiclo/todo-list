@@ -167,7 +167,12 @@ html,body{
     box-sizing: border-box;
 
 }
-.todo-date:focus{
+
+.todo-date{
+    justify-self: right;
+}
+
+.todo-date-input:focus{
     outline: none;
     /* :width: ; */
     background-color: #e2e8f0;
